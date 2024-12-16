@@ -1,0 +1,95 @@
+local DropdownModule = {}
+DropdownModule.__index = DropdownModule;
+
+function DropdownModule:New(parent, options)
+	local NewDropDown = {}
+	setmetatable(NewDropDown, DropdownModule)
+
+	NewDropDown.isOpen = false;
+
+	-- MainConfigs
+	NewDropDown.options = options or {}
+	NewDropDown.width = NewDropDown.options.width or 200
+	NewDropDown.buttonHeight = NewDropDown.options.buttonHeight or 40
+	NewDropDown.backgroundColor = NewDropDown.options.backgroundColor or Color3.fromRGB(240, 240, 240)
+	NewDropDown.buttonColor = NewDropDown.options.buttonColor or Color3.fromRGB(220, 220, 220)
+	NewDropDown.textColor = NewDropDown.options.textColor or Color3.fromRGB(0, 0, 0)
+
+	-- Frame Creation
+	NewDropDown.MainFrame = Instance.new("Frame")
+	NewDropDown.MainFrame.Size = UDim2.new(0, NewDropDown.width, 0, NewDropDown.buttonHeight)
+	NewDropDown.MainFrame.BackgroundColor3 = NewDropDown.backgroundColor
+	Instance.new("UICorner", NewDropDown.MainFrame).CornerRadius = UDim.new(0, 3);
+	Instance.new("UIStroke", NewDropDown.MainFrame).Thickness = 2;
+	NewDropDown.MainFrame.Parent = parent
+
+	NewDropDown.mainButton = Instance.new("TextButton")
+	NewDropDown.mainButton.Size = UDim2.new(1, 0, 1, 0)
+	NewDropDown.mainButton.BackgroundColor3 = NewDropDown.buttonColor
+	NewDropDown.mainButton.Text = NewDropDown.options.defaultText or "Selecione uma opção"
+	NewDropDown.mainButton.TextColor3 = NewDropDown.textColor
+	NewDropDown.mainButton.Parent = NewDropDown.MainFrame
+	Instance.new("UICorner", NewDropDown.mainButton).CornerRadius = UDim.new(0, 3);
+
+	NewDropDown.dropdownContainer = Instance.new("Frame")
+	NewDropDown.dropdownContainer.Size = UDim2.new(1, 0, 0, 0)  -- Inicialmente vazio
+	NewDropDown.dropdownContainer.Position = UDim2.new(0, 0, 1, 0)
+	NewDropDown.dropdownContainer.BackgroundTransparency = 1
+	NewDropDown.dropdownContainer.ClipsDescendants = true;
+	NewDropDown.dropdownContainer.Parent = NewDropDown.MainFrame
+	Instance.new("UICorner", NewDropDown.dropdownContainer).CornerRadius = UDim.new(0, 3);
+	Instance.new("UIListLayout", NewDropDown.dropdownContainer).Padding = UDim.new(0, 5);
+	local Padding = 	Instance.new("UIPadding", NewDropDown.dropdownContainer);
+	Padding.PaddingLeft = UDim.new(0, 3);
+	Padding.PaddingRight = UDim.new(0, 3);
+	Padding.PaddingTop = UDim.new(0, 5);
+	Padding.PaddingBottom = UDim.new(0, 5);
+
+	--Functions
+	function NewDropDown:openDropdown()
+		if not self.isOpen then
+			self.isOpen = true
+			self.dropdownContainer:TweenSize(UDim2.new(1, 0, 0, #self.dropdownContainer:GetChildren() * self.buttonHeight), Enum.EasingDirection.InOut, Enum.EasingStyle.Linear, 0.15, true);
+		end
+	end
+
+	function NewDropDown:closeDropdown()
+		if self.isOpen then
+			self.isOpen = false
+			self.dropdownContainer:TweenSize(UDim2.new(1, 0, 0, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Linear, 0.05, true);
+		end
+	end
+
+	return NewDropDown
+end
+
+function DropdownModule:addButtons(buttonList)
+	warn(self)
+	for _, child in ipairs(self.dropdownContainer:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy();
+		end;
+	end;
+
+	for i, buttonText in ipairs(buttonList) do
+		local button = Instance.new("TextButton")
+		Instance.new("UICorner", button).CornerRadius = UDim.new(0, 2);
+		button.Size = UDim2.new(1, 0, 0, self.buttonHeight)
+		button.Position = UDim2.new(0, 0, 0, ((i-1) * self.buttonHeight+ 3))
+		button.BackgroundColor3 = self.buttonColor
+		button.Text = buttonText
+		button.TextColor3 = self.textColor
+		button.Parent = self.dropdownContainer
+
+		button.MouseButton1Click:Connect(function()
+			self.mainButton.Text = buttonText
+			self:closeDropdown()
+
+			if self.options.onButtonSelected then
+				self.options.onButtonSelected(buttonText)
+			end
+		end)
+	end
+end
+
+return DropdownModule
