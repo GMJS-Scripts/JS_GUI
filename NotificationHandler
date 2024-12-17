@@ -48,16 +48,16 @@ function NotificationModule:New()
 	NotifySystem.activeNotifications = {};
 
 	function NotifySystem:updateNotificationPositions()
-		for i, notification in ipairs(self.activeNotifications) do
+		for i, notification:Frame in ipairs(self.activeNotifications) do
 			notification:TweenPosition(
 				UDim2.new(1, -260, 1, -110 - (i-1) * 110),
 				Enum.EasingDirection.Out,
 				Enum.EasingStyle.Quart,
 				0.3,
 				true
-			)
-		end
-	end
+			);
+		end;
+	end;
 
 	function NotifySystem:endNotification(ThisNotification:Frame)
 		if not ThisNotification then return end;
@@ -69,7 +69,7 @@ function NotificationModule:New()
 			true
 		);
 		wait(0.15);
-		ThisNotification:Destroy()
+		ThisNotification:Destroy();
 	end;
 
 	function NotifySystem:CreateNotify(title, text, duration)
@@ -77,18 +77,18 @@ function NotificationModule:New()
 		local Notification = NotificationModule.CreateNotifyTemplate(title, text);
 		Notification.Parent = NotificationContainer;
 
-		table.insert(self.activeNotifications, Notification)
-		self.updateNotificationPositions()
+		table.insert(self.activeNotifications, Notification);
+		self:updateNotificationPositions();
 
 		delay(duration, function()
-			self.endNotification(Notification);
+			self:endNotification(Notification);
 			for i, v in ipairs(self.activeNotifications) do
 				if v == Notification then
 					table.remove(self.activeNotifications, i);
 					break;
 				end;
 			end;
-			self.updateNotificationPositions();
+			self:updateNotificationPositions();
 		end);
 	end;
 
