@@ -62,7 +62,7 @@ function NotificationModule:New()
 	function NotifySystem:endNotification(ThisNotification:Frame)
 		if not ThisNotification then return end;
 		ThisNotification:TweenPosition(
-			UDim2.new(1, 260, 1, -110),
+			UDim2.new(1, 260, ThisNotification.Position.Y.Scale, ThisNotification.Position.Y.Offset),
 			Enum.EasingDirection.Out,
 			Enum.EasingStyle.Quart,
 			0.15,
