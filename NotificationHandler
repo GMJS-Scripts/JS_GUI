@@ -1,0 +1,98 @@
+local NotificationModule = {}
+NotificationModule.__index = NotificationModule;
+
+local Player = game.Players.LocalPlayer;
+local NotificationContainer = Instance.new("ScreenGui");
+NotificationContainer.Name = "JS_Notify";
+NotificationContainer.Parent = Player:WaitForChild("PlayerGui");
+
+function NotificationModule.CreateNotifyTemplate(Title, Text)
+	local Notification = Instance.new("Frame");
+	Notification.Size = UDim2.new(0, 250, 0, 100);
+	Notification.Position = UDim2.new(1, -260, 1, -110);
+	Notification.BackgroundColor3 = Color3.fromRGB(40, 40, 40);
+	Notification.BorderSizePixel = 0;
+
+	Instance.new("UICorner", Notification).CornerRadius = UDim.new(0, 10);
+
+	local TitleLabel = Instance.new("TextLabel");
+	TitleLabel.AnchorPoint = Vector2.new(0.5,0);
+	TitleLabel.Position = UDim2.new(0.5, 0, 0.03, 0);
+	TitleLabel.Size = UDim2.new(0.95, 0, 0, 30);
+	TitleLabel.BackgroundTransparency = 1;
+	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255);
+	TitleLabel.TextSize = 18;
+	TitleLabel.Font = Enum.Font.SourceSansBold;
+	TitleLabel.Text = Title;
+	TitleLabel.Parent = Notification;
+
+	local TextLabel = Instance.new("TextLabel");
+	TextLabel.Size = UDim2.new(0.95, 0, 0.65, 0);
+	TextLabel.AnchorPoint = Vector2.new(0.5,0);
+	TextLabel.Position = UDim2.new(0.5, 0, 0, 30);
+	TextLabel.BackgroundTransparency = 1;
+	TextLabel.TextColor3 = Color3.fromRGB(200, 200, 200);
+	TextLabel.TextSize = 22;
+	TextLabel.Font = Enum.Font.SourceSans;
+	TextLabel.Text = Text;
+	TextLabel.TextWrapped = true;
+	TextLabel.Parent = Notification;
+
+	return Notification;
+end;
+
+function NotificationModule:New()
+	local NotifySystem = {};
+	setmetatable(NotifySystem, NotificationModule);
+
+	NotifySystem.activeNotifications = {};
+
+	function NotifySystem:updateNotificationPositions()
+		for i, notification in ipairs(NotifySystem.activeNotifications) do
+			notification:TweenPosition(
+				UDim2.new(1, -260, 1, -110 - (i-1) * 110),
+				Enum.EasingDirection.Out,
+				Enum.EasingStyle.Quart,
+				0.3,
+				true
+			)
+		end
+	end
+
+	function NotifySystem:endNotification(ThisNotification:Frame)
+		if not ThisNotification then return end;
+		ThisNotification:TweenPosition(
+			UDim2.new(1, 260, 1, -110),
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quart,
+			0.15,
+			true
+		);
+		wait(0.15);
+		ThisNotification:Destroy()
+	end;
+
+	function NotifySystem:CreateNotify(title, text, duration)
+
+		local Notification = NotificationModule.CreateNotifyTemplate(title, text);
+		Notification.Parent = NotificationContainer;
+
+		table.insert(self.activeNotifications, Notification)
+		self.updateNotificationPositions()
+
+		delay(duration, function()
+			self.endNotification(Notification);
+			for i, v in ipairs(self.activeNotifications) do
+				if v == Notification then
+					table.remove(self.activeNotifications, i);
+					break;
+				end;
+			end;
+			self.updateNotificationPositions();
+		end);
+	end;
+
+	return NotifySystem;
+end;
+
+return NotificationModule;
