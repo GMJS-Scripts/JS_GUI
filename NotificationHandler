@@ -48,7 +48,7 @@ function NotificationModule:New()
 	NotifySystem.activeNotifications = {};
 
 	function NotifySystem:updateNotificationPositions()
-		for i, notification in ipairs(NotifySystem.activeNotifications) do
+		for i, notification in ipairs(self.activeNotifications) do
 			notification:TweenPosition(
 				UDim2.new(1, -260, 1, -110 - (i-1) * 110),
 				Enum.EasingDirection.Out,
