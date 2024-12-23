@@ -5,6 +5,7 @@ local Player = game.Players.LocalPlayer;
 local NotificationContainer = Instance.new("ScreenGui");
 NotificationContainer.Name = "JS_Notify";
 NotificationContainer.Parent = Player:WaitForChild("PlayerGui");
+NotificationContainer.ResetOnSpawn = false;
 
 function NotificationModule.CreateNotifyTemplate(Title, Text)
 	local Notification = Instance.new("Frame");
