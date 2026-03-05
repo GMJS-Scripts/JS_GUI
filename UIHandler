@@ -3,29 +3,29 @@ UIHandler.__index = UIHandler;
 UIHandler.AllDropDowns = {};
 UIHandler.OpenedDropDown = nil;
 local StartZIndex = 100000;
+local UIS = game:GetService("UserInputService")
 
 function UIHandler:CreateFrame(name, parent, style)
 	local frame = Instance.new("Frame");
 	frame.Name = name;
 	frame.Parent = parent;
 	frame.AnchorPoint = Vector2.new(0.5, 0.5);
-	frame.Size = UDim2.new(0, 450, 0, 275);
+	frame.Size = UDim2.new(0, 500, 0, 300);
 	frame.Position = UDim2.new(0.5,0,0.5,0);
-	frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-	frame.BackgroundTransparency = 1;
+	frame.BackgroundColor3 = Color3.fromRGB(20, 20, 25);
+	frame.BackgroundTransparency = 0;
 	frame.BorderSizePixel = 0;
 	frame.ClipsDescendants = false;
 
 	local CategoryFrame = Instance.new("Frame", frame);
 	CategoryFrame.Position = UDim2.new(0, 0, 0, 0);
-	CategoryFrame.Size = UDim2.new(0.275, 0, 1, 0);
-	CategoryFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-	CategoryFrame.BackgroundTransparency = 0.25;
+	CategoryFrame.Size = UDim2.new(0.3, 0, 1, 0);
+	CategoryFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20);
 	CategoryFrame.Name = "Category";
 	local CategoryFrameUiListLayout = Instance.new("UIListLayout", CategoryFrame);
 	CategoryFrameUiListLayout.Padding = UDim.new(0, 5);
 	CategoryFrameUiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
-	local CategoryFramePadding = 	Instance.new("UIPadding", CategoryFrame);
+	local CategoryFramePadding = Instance.new("UIPadding", CategoryFrame);
 	CategoryFramePadding.PaddingLeft = UDim.new(0, 3);
 	CategoryFramePadding.PaddingRight = UDim.new(0, 3);
 	CategoryFramePadding.PaddingTop = UDim.new(0, 5);
@@ -33,22 +33,13 @@ function UIHandler:CreateFrame(name, parent, style)
 
 	local ContentFrame = Instance.new("Frame", frame);
 	ContentFrame.Name = "Content";
-	ContentFrame.Position = UDim2.new(0.285, 0, 0, 0);
-	ContentFrame.Size = UDim2.new(0.715, 0, 1, 0);
-	ContentFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-	ContentFrame.BackgroundTransparency = 0.25;
+	ContentFrame.Position = UDim2.new(0.3, 0, 0, 0);
+	ContentFrame.Size = UDim2.new(0.7, 0, 1, 0);
+	ContentFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30);
 	Instance.new("UIStroke", ContentFrame).Thickness = 1;
-	local ContentFrameUiListLayout = Instance.new("UIListLayout", ContentFrame);
-	ContentFrameUiListLayout.Padding = UDim.new(0, 10);
-	ContentFrameUiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
-	ContentFrameUiListLayout.VerticalAlignment = Enum.VerticalAlignment.Center;
-	local ContentFramePadding = 	Instance.new("UIPadding", ContentFrame);
-	ContentFramePadding.PaddingLeft = UDim.new(0, 3);
-	ContentFramePadding.PaddingRight = UDim.new(0, 3);
-	ContentFramePadding.PaddingTop = UDim.new(0, 5);
-	ContentFramePadding.PaddingBottom = UDim.new(0, 5);
 
 	if style == "Rounded" then
+		Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8);
 		Instance.new("UICorner", CategoryFrame).CornerRadius = UDim.new(0, 8);
 		Instance.new("UICorner", ContentFrame).CornerRadius = UDim.new(0, 8);
 	end;
@@ -58,7 +49,6 @@ end
 
 function UIHandler:MakeDraggable(frame)
 	local dragToggle, dragStart, startPos
-	local UIS = game:GetService("UserInputService")
 
 	local function update(input)
 		local delta = input.Position - dragStart
@@ -91,16 +81,14 @@ function UIHandler:New(parent)
 	setmetatable(NewUI, UIHandler)
 	NewUI.ActualOpened = nil;
 
-	-- Frame Creation
 	NewUI.MenuFrame = UIHandler:CreateFrame("MainPanel", parent, "Rounded");
 
-	--Functions
-	function NewUI:CreateCategory(CategoryName:string)
+	function NewUI:CreateCategory(CategoryName)
 		local NewButton = Instance.new("TextButton");
 		NewButton.Name = CategoryName;
 		Instance.new("UICorner", NewButton).CornerRadius = UDim.new(0, 5);
 		NewButton.Size = UDim2.new(0.95, 0, 0, 35)
-		NewButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+		NewButton.BackgroundColor3 = Color3.fromRGB(40, 40, 45);
 		NewButton.Text = CategoryName;
 		NewButton.TextColor3 = Color3.fromRGB(255,255,255);
 		NewButton.FontFace.Weight = Enum.FontWeight.Bold;
@@ -108,47 +96,107 @@ function UIHandler:New(parent)
 
 		if self.ActualOpened == nil then
 			self.ActualOpened = CategoryName;
+			NewButton.BackgroundColor3 = Color3.fromRGB(60, 120, 200);
 		end;
 
-		local NewContentFrame = Instance.new("Frame", NewUI.MenuFrame.Content);
+		local NewContentFrame = Instance.new("ScrollingFrame", NewUI.MenuFrame.Content);
 		NewContentFrame.Visible = self.ActualOpened == CategoryName;
 		NewContentFrame.Name = CategoryName;
-		NewContentFrame.AnchorPoint = Vector2.new(0.5,0.5);
-		NewContentFrame.Position = UDim2.new(0.5,0,0.5,0);
 		NewContentFrame.BackgroundTransparency = 1;
-		NewContentFrame.Size = UDim2.new(1,0,0.95,0);
-		Instance.new("UIStroke", NewContentFrame).Thickness = 1;
-		Instance.new("UICorner", NewContentFrame).CornerRadius = UDim.new(0, 8);
+		NewContentFrame.Size = UDim2.new(1, 0, 1, 0);
+		NewContentFrame.ScrollBarThickness = 4;
+		NewContentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y;
+		NewContentFrame.CanvasSize = UDim2.new(0,0,0,0);
+
 		local ContentFrameUiListLayout = Instance.new("UIListLayout", NewContentFrame);
-		ContentFrameUiListLayout.Padding = UDim.new(0, 10);
+		ContentFrameUiListLayout.Padding = UDim.new(0, 8);
 		ContentFrameUiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
-		local ContentFramePadding = 	Instance.new("UIPadding", NewContentFrame);
-		ContentFramePadding.PaddingLeft = UDim.new(0, 3);
-		ContentFramePadding.PaddingRight = UDim.new(0, 3);
-		ContentFramePadding.PaddingTop = UDim.new(0, 5);
-		ContentFramePadding.PaddingBottom = UDim.new(0, 5);
-		
+		ContentFrameUiListLayout.SortOrder = Enum.SortOrder.LayoutOrder;
+
+		local ContentFramePadding = Instance.new("UIPadding", NewContentFrame);
+		ContentFramePadding.PaddingLeft = UDim.new(0, 10);
+		ContentFramePadding.PaddingRight = UDim.new(0, 10);
+		ContentFramePadding.PaddingTop = UDim.new(0, 10);
+		ContentFramePadding.PaddingBottom = UDim.new(0, 10);
+
 		NewButton.Activated:Connect(function()
 			if UIHandler.OpenedDropDown then
 				local LastDropsDown = UIHandler.OpenedDropDown;
 				UIHandler.OpenedDropDown = nil;
 				LastDropsDown:closeDropdown();
 			end;
-			for I, Child in NewUI.MenuFrame.Content:GetChildren() do
-				if Child:IsA("Frame") then
-					if Child.Name == CategoryName then
-						Child.Visible = true;
-					else
-						Child.Visible = false;
-					end;
+
+			for _, Child in NewUI.MenuFrame.Category:GetChildren() do
+				if Child:IsA("TextButton") then
+					Child.BackgroundColor3 = (Child.Name == CategoryName) and Color3.fromRGB(60, 120, 200) or Color3.fromRGB(40, 40, 45)
+				end
+			end
+
+			for _, Child in NewUI.MenuFrame.Content:GetChildren() do
+				if Child:IsA("ScrollingFrame") then
+					Child.Visible = (Child.Name == CategoryName)
 				end;
 			end;
 		end);
-		
+
 		return NewButton, NewContentFrame;
 	end;
 
 	return NewUI
+end
+
+function UIHandler:CreateKeybind(parent, options)
+	local description = options.description or "Keybind"
+	local defaultKey = options.defaultKey or Enum.KeyCode.Unknown
+	local callback = options.callback or function() end
+
+	local BindFrame = Instance.new("Frame", parent)
+	BindFrame.Size = UDim2.new(1, 0, 0, 40)
+	BindFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+	Instance.new("UICorner", BindFrame).CornerRadius = UDim.new(0, 4)
+
+	local Title = Instance.new("TextLabel", BindFrame)
+	Title.Size = UDim2.new(0.6, 0, 1, 0)
+	Title.Position = UDim2.new(0, 10, 0, 0)
+	Title.BackgroundTransparency = 1
+	Title.Text = description
+	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Title.Font = Enum.Font.GothamSemibold
+	Title.TextSize = 14
+	Title.TextXAlignment = Enum.TextXAlignment.Left
+
+	local BindBtn = Instance.new("TextButton", BindFrame)
+	BindBtn.Size = UDim2.new(0.35, 0, 0.7, 0)
+	BindBtn.Position = UDim2.new(0.62, 0, 0.15, 0)
+	BindBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+	BindBtn.Text = (defaultKey == Enum.KeyCode.Unknown) and "NONE" or defaultKey.Name
+	BindBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+	BindBtn.Font = Enum.Font.GothamBold
+	BindBtn.TextSize = 12
+	Instance.new("UICorner", BindBtn).CornerRadius = UDim.new(0, 4)
+	Instance.new("UIStroke", BindBtn).Color = Color3.fromRGB(80, 80, 80)
+
+	local isBinding = false
+
+	BindBtn.MouseButton1Click:Connect(function()
+		BindBtn.Text = ". . ."
+		isBinding = true
+	end)
+
+	UIS.InputBegan:Connect(function(input, gameProcessed)
+		if isBinding and input.UserInputType == Enum.UserInputType.Keyboard then
+			if input.KeyCode ~= Enum.KeyCode.Escape then
+				BindBtn.Text = input.KeyCode.Name
+				callback(input.KeyCode)
+			else
+				BindBtn.Text = "NONE"
+				callback(Enum.KeyCode.Unknown)
+			end
+			isBinding = false
+		end
+	end)
+
+	return BindFrame
 end
 
 function UIHandler:CreateDropDown(parent, options)
@@ -159,67 +207,65 @@ function UIHandler:CreateDropDown(parent, options)
 	NewUI.ThisZIndex = StartZIndex - #UIHandler.AllDropDowns;
 	NewUI.options = options or {};
 	NewUI.AllDropDownButtons = {};
-
 	NewUI.isOpen = false;
 	NewUI.ActualSelected = (NewUI.options.startOption) or (nil);
 
-	-- MainConfigs
 	NewUI.description = NewUI.options.description or "%s";
-	NewUI.buttonHeight = NewUI.options.buttonHeight or 40;
-	NewUI.backgroundColor = NewUI.options.backgroundColor or Color3.fromRGB(240, 240, 240);
-	NewUI.buttonColor = NewUI.options.buttonColor or Color3.fromRGB(220, 220, 220);
-	NewUI.textColor = NewUI.options.textColor or Color3.fromRGB(0, 0, 0);
-	NewUI.mainPosition = NewUI.options.mainPosition or UDim2.new();
+	NewUI.buttonHeight = NewUI.options.buttonHeight or 35;
+	NewUI.backgroundColor = NewUI.options.backgroundColor or Color3.fromRGB(35, 35, 40);
+	NewUI.buttonColor = NewUI.options.buttonColor or Color3.fromRGB(45, 45, 50);
+	NewUI.textColor = NewUI.options.textColor or Color3.fromRGB(255, 255, 255);
 
-	-- Frame Creation
 	NewUI.MainFrame = Instance.new("Frame")
-	NewUI.MainFrame.Size = UDim2.new(1, -10, 0, NewUI.buttonHeight)
+	NewUI.MainFrame.Size = UDim2.new(1, 0, 0, NewUI.buttonHeight)
 	NewUI.MainFrame.BackgroundColor3 = NewUI.backgroundColor
-	NewUI.MainFrame.Position = NewUI.mainPosition;
-	Instance.new("UICorner", NewUI.MainFrame).CornerRadius = UDim.new(0, 3);
-	Instance.new("UIStroke", NewUI.MainFrame).Thickness = 2;
+	NewUI.MainFrame.BackgroundTransparency = 1
 	NewUI.MainFrame.ZIndex = NewUI.ThisZIndex
 	NewUI.MainFrame.Parent = parent
 
 	NewUI.mainButton = Instance.new("TextButton")
 	NewUI.mainButton.Size = UDim2.new(1, 0, 1, 0)
-	NewUI.mainButton.BackgroundColor3 = NewUI.buttonColor
-	NewUI.mainButton.Text = string.format(NewUI.description, NewUI.ActualSelected or "Selecione uma opção")
+	NewUI.mainButton.BackgroundColor3 = NewUI.backgroundColor
+	NewUI.mainButton.Text = string.format(NewUI.description, NewUI.ActualSelected or "Selecione...")
 	NewUI.mainButton.TextColor3 = NewUI.textColor
+	NewUI.mainButton.Font = Enum.Font.GothamSemibold
+	NewUI.mainButton.TextSize = 13
 	NewUI.mainButton.ZIndex = NewUI.ThisZIndex
 	NewUI.mainButton.Parent = NewUI.MainFrame
-	Instance.new("UICorner", NewUI.mainButton).CornerRadius = UDim.new(0, 3);
+	Instance.new("UICorner", NewUI.mainButton).CornerRadius = UDim.new(0, 4);
+
+	NewUI.mainButton.MouseButton1Click:Connect(function()
+		if NewUI.isOpen then
+			NewUI:closeDropdown()
+		else
+			NewUI:openDropdown()
+		end
+	end)
 
 	NewUI.dropdownContainer = Instance.new("Frame")
-	NewUI.dropdownContainer.Size = UDim2.new(1, 0, 0, 0)  -- Inicialmente vazio
-	NewUI.dropdownContainer.Position = UDim2.new(0, 0, 1, 0)
-	NewUI.dropdownContainer.BackgroundTransparency = 1
+	NewUI.dropdownContainer.Size = UDim2.new(1, 0, 0, 0) 
+	NewUI.dropdownContainer.Position = UDim2.new(0, 0, 1, 2)
+	NewUI.dropdownContainer.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 	NewUI.dropdownContainer.ClipsDescendants = true;
-	NewUI.dropdownContainer.ZIndex = NewUI.ThisZIndex
+	NewUI.dropdownContainer.ZIndex = NewUI.ThisZIndex + 10
 	NewUI.dropdownContainer.Parent = NewUI.MainFrame
-	Instance.new("UICorner", NewUI.dropdownContainer).CornerRadius = UDim.new(0, 3);
-	local UiListLayout = Instance.new("UIListLayout", NewUI.dropdownContainer);
-	UiListLayout.Padding = UDim.new(0, 5);
-	UiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
-	local Padding = Instance.new("UIPadding", NewUI.dropdownContainer);
-	Padding.PaddingLeft = UDim.new(0, 3);
-	Padding.PaddingRight = UDim.new(0, 3);
-	Padding.PaddingTop = UDim.new(0, 5);
-	Padding.PaddingBottom = UDim.new(0, 5);
+	Instance.new("UICorner", NewUI.dropdownContainer).CornerRadius = UDim.new(0, 4);
 
-	--Functions
+	local UiListLayout = Instance.new("UIListLayout", NewUI.dropdownContainer);
+	UiListLayout.Padding = UDim.new(0, 2);
+	UiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
+
 	function NewUI:openDropdown()
 		if not self.isOpen then
 			self.isOpen = true
-
 			if UIHandler.OpenedDropDown then
 				local LastDropsDown = UIHandler.OpenedDropDown;
 				UIHandler.OpenedDropDown = self;
 				LastDropsDown:closeDropdown();
 			end;
 			UIHandler.OpenedDropDown = self;
-
-			self.dropdownContainer:TweenSize(UDim2.new(1, 0, 0, #self.dropdownContainer:GetChildren() * self.buttonHeight), Enum.EasingDirection.InOut, Enum.EasingStyle.Linear, 0.15, true);
+			local height = #self.dropdownContainer:GetChildren() - 1
+			self.dropdownContainer:TweenSize(UDim2.new(1, 0, 0, height * self.buttonHeight + (height*2)), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.2, true);
 		end
 	end
 
@@ -229,46 +275,39 @@ function UIHandler:CreateDropDown(parent, options)
 				UIHandler.OpenedDropDown = nil;
 			end;
 			self.isOpen = false
-			self.dropdownContainer:TweenSize(UDim2.new(1, 0, 0, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Linear, 0.05, true);
+			self.dropdownContainer:TweenSize(UDim2.new(1, 0, 0, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.15, true);
 		end
 	end
+
 	function NewUI:addButtonsToDropdown(buttonList)
 		for _, child in ipairs(self.dropdownContainer:GetChildren()) do
-			if child:IsA("TextButton") then
-				child:Destroy();
-			end;
+			if child:IsA("TextButton") then child:Destroy() end;
 		end;
 
 		for i, buttonText in ipairs(buttonList) do
 			local button = Instance.new("TextButton")
-			Instance.new("UICorner", button).CornerRadius = UDim.new(0, 2);
-			button.Size = UDim2.new(1, 0, 0, self.buttonHeight)
-			button.Position = UDim2.new(0, 0, 0, ((i-1) * self.buttonHeight+ 3))
+			button.Size = UDim2.new(1, -4, 0, self.buttonHeight)
 			button.BackgroundColor3 = self.buttonColor
 			button.Text = buttonText
 			button.TextColor3 = self.textColor
-			button.ZIndex = self.ThisZIndex
+			button.Font = Enum.Font.Gotham
+			button.TextSize = 12
+			button.ZIndex = self.dropdownContainer.ZIndex + 1
 			button.Parent = self.dropdownContainer
-			local Stroke = 	Instance.new("UIStroke", button);
+			Instance.new("UICorner", button).CornerRadius = UDim.new(0, 4);
+
+			local Stroke = Instance.new("UIStroke", button);
 			Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
 			Stroke.Thickness = 1;
-			Stroke.Color = Color3.fromRGB(255,255,255);
-			if self.ActualSelected == buttonText then
-				Stroke.Color = Color3.fromRGB(0, 255, 0);
-			end;
+			Stroke.Color = (self.ActualSelected == buttonText) and Color3.fromRGB(60, 180, 80) or Color3.fromRGB(60, 60, 60);
 			table.insert(self.AllDropDownButtons, {button = button, Stroke = Stroke});
 
 			button.MouseButton1Click:Connect(function()
-				self.mainButton.Text = string.format(NewUI.description, buttonText or "Selecione uma opção");
+				self.mainButton.Text = string.format(NewUI.description, buttonText);
 				self:closeDropdown()
 
-				for Index, ButtonTable in self.AllDropDownButtons do
-					if (not Index) or (not ButtonTable) then continue end;
-					if ButtonTable.button.Text == buttonText then
-						ButtonTable.Stroke.Color = Color3.fromRGB(0, 255, 0);
-					else
-						ButtonTable.Stroke.Color = Color3.fromRGB(255,255,255);
-					end;
+				for _, ButtonTable in pairs(self.AllDropDownButtons) do
+					ButtonTable.Stroke.Color = (ButtonTable.button.Text == buttonText) and Color3.fromRGB(60, 180, 80) or Color3.fromRGB(60, 60, 60);
 				end;
 
 				if self.options.onButtonSelected then
