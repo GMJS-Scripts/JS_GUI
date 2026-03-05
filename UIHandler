@@ -25,6 +25,8 @@ function UIHandler:CreateFrame(name, parent, style)
 	local CategoryFrameUiListLayout = Instance.new("UIListLayout", CategoryFrame);
 	CategoryFrameUiListLayout.Padding = UDim.new(0, 5);
 	CategoryFrameUiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
+	CategoryFrameUiListLayout.SortOrder = Enum.SortOrder.LayoutOrder;
+
 	local CategoryFramePadding = Instance.new("UIPadding", CategoryFrame);
 	CategoryFramePadding.PaddingLeft = UDim.new(0, 3);
 	CategoryFramePadding.PaddingRight = UDim.new(0, 3);
@@ -82,8 +84,9 @@ function UIHandler:New(parent)
 	NewUI.ActualOpened = nil;
 
 	NewUI.MenuFrame = UIHandler:CreateFrame("MainPanel", parent, "Rounded");
+	NewUI.ActualIndex = 0
 
-	function NewUI:CreateCategory(CategoryName)
+	function NewUI:CreateCategory(CategoryName, index:number)
 		local NewButton = Instance.new("TextButton");
 		NewButton.Name = CategoryName;
 		Instance.new("UICorner", NewButton).CornerRadius = UDim.new(0, 5);
@@ -93,6 +96,11 @@ function UIHandler:New(parent)
 		NewButton.TextColor3 = Color3.fromRGB(255,255,255);
 		NewButton.FontFace.Weight = Enum.FontWeight.Bold;
 		NewButton.Parent = NewUI.MenuFrame.Category;
+
+		if not index then
+			NewUI.ActualIndex += 1
+		end
+		NewButton.LayoutOrder = index or NewUI.ActualIndex;
 
 		if self.ActualOpened == nil then
 			self.ActualOpened = CategoryName;
